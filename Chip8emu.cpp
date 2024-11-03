@@ -55,42 +55,75 @@ Chip8()
 randByte=std::uniform_int_distribution<uint8_t>(0,255u);// initalize RNG register
 }
 
-void OP_00E0() //clear op
-{ 
-memset(Screen,0,sizeof(Screen));
-}
+	void OP_00E0() //clear op
+	{ 
+	memset(Screen,0,sizeof(Screen));
+	}
 
-void OP_00EE()// RET  (return func)
-{ 
-SP--;   
-PC=stack[SP];
-}
-void OP_1nnn()// jp to addr
-{
-uint16_t address=opcode & 0x0FFFu;
-PC =address;
-}
+	void OP_00EE()// RET  (return func)
+	{ 
+	SP--;   
+	PC=stack[SP];
+	}
+	void OP_1nnn()// jp to addr
+	{
+	uint16_t address=opcode & 0x0FFFu;
+	PC =address;
+	}
 
     void OP_2nnn() //call addr
     {}
 
     void OP_3xkk()
-    {}
+    {
+		uint8_t VX=(opcode& 0x0F00u)>>8u;// cuz x is in the second hexadecimal place so 
+		uint8_t byte=(opcode & 0x00FFu);
+		if(VX=byte){
+			PC+=2;
+		}
+	}
 
     void OP_4xkk()
-    {}
+    {
+		uint8_t VX=(opcode& 0x0F00u)>>8u;// cuz x is in the second hexadecimal place so 
+		uint8_t byte=(opcode & 0x00FFu);
+		if(VX!=byte){
+			PC+=2;
+		}
+	}
 
     void OP_5xy0()
-    {}
+    {
+		uint8_t VX=(opcode& 0x0F00u)>>8u;// cuz x is in the second hexadecimal place so 
+		uint8_t VY=(opcode & 0x00F0u)>>4u;
+		if(VX=VY){
+			PC+=2;
+		}
+	}
 
     void OP_6xkk()
-    {}
+    {
+		uint8_t VX=(opcode& 0x0F00u)>>8u;// cuz x is in the second hexadecimal place so 
+		uint8_t byte=(opcode & 0x00FFu);
+		
+		VX=byte;
+	}
 
     void OP_7xkk()
-    {}
+    {
+		uint8_t VX=(opcode& 0x0F00u)>>8u;// cuz x is in the second hexadecimal place so 
+		uint8_t byte=(opcode & 0x00FFu);
+		
+		VX+=byte;
+	}
 
     void OP_8xy0()
-    {}
+    {
+		uint8_t VX=(opcode& 0x0F00u)>>8u;// cuz x is in the second hexadecimal place so 
+		uint8_t VY=(opcode & 0x00F0u)>>4u;
+		
+		VX=VY;
+	}
 
 	// OR Vx, Vy
 	void OP_8xy1()
@@ -168,7 +201,8 @@ PC =address;
 
 int main(){
     
-    
+	Chip8 chip();
+
 
     return 0;
 }
