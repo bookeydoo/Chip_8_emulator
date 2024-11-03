@@ -1,3 +1,5 @@
+//TODO : organize files and compile them together 
+
 #include<stdint.h>
 #include<cstdint>
 #include<random>
@@ -198,11 +200,3 @@ randByte=std::uniform_int_distribution<uint8_t>(0,255u);// initalize RNG registe
 	// LD Vx, [I]
 	void OP_Fx65();
 };
-
-int main(){
-    
-	Chip8 chip();
-
-
-    return 0;
-}
