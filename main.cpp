@@ -15,16 +15,16 @@ int main(int argc, char** argv)
     if (argc < 2) {
         std::cerr << "sth wrong occured please input the rom and try again";
     }
-    std::cout << "please select the size u want from the following:\n\t 1.500x500 \t 2.800x400  ";
+    std::cout << "please select the size u want from the following:\n\t 1.800x500 \t 2.1200x800  ";
     uint8_t choice;
     std::cin >> choice;
     if (choice == 1) {
-        window_length = 500;
+        window_length = 800;
         window_height = 500;
     }
     else {
-        window_height = 400;
-        window_length = 800;
+        window_length = 1200;
+        window_height = 800;
     }
     InitWindow(window_length,window_height,"Chip8 emulator");
  
@@ -58,7 +58,7 @@ int main(int argc, char** argv)
         {
             framesCounter++;
 
-            if (framesCounter == 120)
+            if (framesCounter >= 120)
             {
                 state = 1;
                 framesCounter = 0;      // Reset counter... will be used later...
@@ -69,14 +69,14 @@ int main(int argc, char** argv)
             toplogoRecwidth += 4;
             leftlogoRecHeight += 4;
 
-            if (toplogoRecwidth == 256) state = 2;
+            if (toplogoRecwidth >= 256) state = 2;
         }
         else if (state == 2)            // State 2: Bottom and right bars growing
         {
             bottomlogoRecWidth += 4;
             rightlogoRecHeight += 4;
 
-            if (bottomlogoRecWidth == 256) state = 3;
+            if (bottomlogoRecWidth >= 256) state = 3;
         }
         else if (state == 3)            // State 3: Letters appearing (one by one)
         {
@@ -120,16 +120,15 @@ int main(int argc, char** argv)
 
         BeginDrawing();
         ClearBackground(BLACK);
-        DrawFPS(window_length / 2, window_height / 2);
+        DrawFPS(window_length-200, 0);
 
         if (state == -1) {
-            DrawText("Welcome to my humble emulator ", window_length / 2, window_height - 200, 16, BLACK);
+            DrawText("Welcome to my humble emulator ", (window_length / 2)-100, window_height/2  , 30, BLACK);
         }
-        framesCounter++;    //obvious issue here we need a flag to show we ended up showing the welcome and it wont repeat
-        if (framesCounter == 150 && !msg_flag) {
+        framesCounter++;   
+        if (framesCounter == 150 && state== -1) {
             framesCounter = 0;//reset
-            state =0;
-            msg_flag = 1;
+            state++;
         }
         ClearBackground(RAYWHITE);
 
