@@ -129,16 +129,24 @@ randByte=std::uniform_int_distribution<uint8_t>(0,255u);// initalize RNG registe
 
 	// OR Vx, Vy
 	void OP_8xy1()
-    {}
+    {
+
+	}
 
 	// AND Vx, Vy
-	void OP_8xy2();
+	void OP_8xy2(){
+
+	}
 
 	// XOR Vx, Vy
-	void OP_8xy3();
+	void OP_8xy3(){
+
+	}
 
 	// ADD Vx, Vy
-	void OP_8xy4();
+	void OP_8xy4(){
+		
+	}
 
 	// SUB Vx, Vy
 	void OP_8xy5();
