@@ -1,7 +1,6 @@
-
-#include<stdint.h>
 #include<cstdint>
 #include<random>
+#include<stdint.h
 #include<chrono>
 #include <cstring>
 
@@ -13,6 +12,7 @@ const uint8_t start_address=0x200;
 class Chip8{
 //implementing registers used
 
+uint8_t registers[16];
 uint16_t stack[16];
 uint16_t Mem[4096];
 uint16_t PC=0x20; //Program counter starts at 0x20 then increments by 2 everytime
