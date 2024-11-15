@@ -383,3 +383,22 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 		}
 	}
 
+	void Chip8::cycle(){
+		//fetch
+		opcode = (Mem[PC]<<8u) ;
+
+		PC += 2;
+
+		// Decrement the delay timer if it's been set
+		if (delaytimer > 0)
+		{
+			--delaytimer;
+		}
+
+		// Decrement the sound timer if it's been set
+		if (soundtimer > 0)
+		{
+			--soundtimer;
+		}
+	}
+

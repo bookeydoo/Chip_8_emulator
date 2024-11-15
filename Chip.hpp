@@ -32,6 +32,7 @@ public:
 
 	Chip8();
 
+	void cycle();
 	void OP_00E0(); //clear op
 
 	void OP_00EE();// RET  (return func)
