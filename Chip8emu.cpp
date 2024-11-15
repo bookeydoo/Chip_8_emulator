@@ -53,7 +53,12 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 	}
 
 	void Chip8::OP_2nnn() //call addr
-	{}
+	{
+		uint16_t address = opcode & 0x0FFFu;
+		stack[SP] = PC;
+		SP++;
+		PC = address;
+	}
 
 	void Chip8::OP_3xkk()
 	{
@@ -335,22 +340,46 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 	// ADD I, Vx
 	void Chip8::OP_Fx1E() {
 		
-
+		uint8_t VX = (opcode & 0x0F00u) >> 8u;
+		AR += registers[VX];
+		
 	}
 
 	// LD F, Vx
 	void Chip8::OP_Fx29() {
+		uint8_t VX = (opcode & 0x0F00u) >> 8u;
+		uint8_t digit = registers[VX];
+
+		AR = FONT_SET_STARTADDRESS + (5 * digit);
 
 	}
 
 	// LD B, Vx
 	void Chip8::OP_Fx33() {
-
+		uint8_t VX = (opcode & 0x0F00u) >> 8u;
+		uint8_t value = registers[VX];
+		Mem[AR + 2] = value % 10;
+		value /= 2;
+		Mem[AR + 1] = value % 10;
+		value /= 2;
+		Mem[AR] = value % 10;
 	}
 
 	// LD [I], Vx
-	void Chip8::OP_Fx55() {}
+	void Chip8::OP_Fx55() {
+		uint8_t VX = (opcode & 0x0F00u)>>8u;
+
+		for (int i = 0;i < 16;i++) {
+			Mem[AR+i] = registers[i];
+		}
+	}
 
 	// LD Vx, [I]
-	void Chip8::OP_Fx65() {}
+	void Chip8::OP_Fx65() {
+		
+		uint8_t VX = (opcode & 0x0F00u) >> 8u;
+		for (int i = 0;i < 16; i++) {
+			registers[i] = Mem[AR + i];
+		}
+	}
 
