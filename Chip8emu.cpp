@@ -59,7 +59,6 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 			Mem[start_address + i] = buffer[i];
 		}
 
-		// Free the buffer
 		delete[] buffer;
 	}
 	}
@@ -412,7 +411,7 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 
 	void Chip8::cycle(){
 		//fetch
-		opcode = (Mem[PC]<<8u) ;
+		opcode = (Mem[PC]<<8u) | (Mem[PC+1]); //we combine the two words into one opcode 
 
 		PC += 2;
 
@@ -427,8 +426,9 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 		{
 			--soundtimer;
 		}
+		decode();
 	}
 	void Chip8::decode(){
-		
+		//todo ان شاء الله
 	}
 

@@ -13,8 +13,9 @@ int main(int argc, char** argv)
     int window_height = 0;
 
 
-    if (argc < 2) {
+    if (argc < 3) {
         std::cerr << "sth wrong occured please input the rom and try again";
+        
     }
     std::cout << "please select the size u want from the following:\n\t 1.800x500 \t 2.1200x800  ";
     uint8_t choice;
@@ -27,6 +28,7 @@ int main(int argc, char** argv)
         window_length = 1200;
         window_height = 800;
     }
+    
     InitWindow(window_length,window_height,"Chip8 emulator");
  
    
@@ -50,7 +52,7 @@ int main(int argc, char** argv)
     float alpha = 1.0; //for fading(idk what this means )
 
     SetTargetFPS(60);
-    
+    cpu.loadROM(argv[3]);
     while (!WindowShouldClose()) {
         //the logo stuff starts here  for checks first
           // Update
@@ -102,19 +104,10 @@ int main(int argc, char** argv)
         }
         else if (state == 4)            // State 4: Reset and Replay
         {
-            if (IsKeyPressed(KEY_R))
-            {
-                framesCounter = 0;
-                lettersCount = 0;
-
-                toplogoRecwidth = 16;
-                leftlogoRecHeight = 16;
-
-                bottomlogoRecWidth = 16;
-                rightlogoRecHeight = 16;
-
-                alpha = 1.0f;
-                state = 0;          // Return to State 0
+            if (IsKeyPressed(KEY_ENTER)) //starting the cpu
+            { 
+                ClearBackground(BLACK);
+                Cpu.cycle();    
             }
         }
 
