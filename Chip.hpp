@@ -33,6 +33,9 @@ public:
 	Chip8();
 
 	void cycle();
+
+	void decode();
+	
 	void OP_00E0(); //clear op
 
 	void OP_00EE();// RET  (return func)
@@ -126,6 +129,8 @@ public:
 
 	// LD Vx, [I]
 	void OP_Fx65();
+
+	
 };
 
 #endif

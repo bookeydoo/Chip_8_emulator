@@ -401,4 +401,7 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 			--soundtimer;
 		}
 	}
+	void Chip8::decode(){
+		
+	}
 
