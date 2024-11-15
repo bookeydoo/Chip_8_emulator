@@ -1,12 +1,13 @@
-#include "Chip.hpp"
-#include<chrono>
+
 #include<iostream>
-#include"Chip8emu.cpp" 
 #include<raylib.h>
+#include"chip.hpp"
 
 //TODO later maybe for better organiziation 
 int main(int argc, char** argv)
 {
+    Chip8 cpu;
+    
     uint8_t msg_flag = 0; //this is reuseable to not waste memory
     int window_length = 0;
     int window_height = 0;

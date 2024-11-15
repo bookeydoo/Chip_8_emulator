@@ -1,5 +1,5 @@
 //TODO : organize files and compile them together 
-
+#include "chip.hpp"
 #include<stdint.h>
 #include<cstdint>
 #include<random>
@@ -29,64 +29,42 @@ uint8_t fontset[FONT_SET_SIZE] =
 	0xF0, 0x80, 0xF0, 0x80, 0x80  // F
 };
 
-
-class Chip8 {
-	//implementing registers used
-	uint16_t AR; //address register
-	uint8_t registers[16];
-	uint16_t stack[16];
-	uint16_t Mem[4096];
-	uint16_t PC = 0x20; //Program counter starts at 0x20 then increments by 2 everytime
-	uint16_t AR; //address register
-	uint8_t SP;  //stackpointer
-	uint8_t keys[16]; //we use hexadecimal keys from 0 to F 
-	uint8_t delaytimer;
-	uint8_t soundtimer;
-	int32_t Screen[64 * 32]; //we can change it depending on preferences
-	uint16_t opcode;
-
-	std::default_random_engine randGen;
-	std::uniform_int_distribution<uint8_t> randByte;
-
-	Chip8()
-		: randGen(std::chrono::system_clock::now().time_since_epoch().count())
-	{
-
-		for (int i = 0;i < FONT_SET_SIZE;i++) {
-			Mem[FONT_SET_STARTADDRESS + i] = fontset[i];
-		}
-		randByte = std::uniform_int_distribution<uint8_t>(0, 255u);// initalize RNG register
+Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().count()) {
+	for (int i = 0; i < FONT_SET_SIZE; i++) {
+		Mem[FONT_SET_STARTADDRESS + i] = fontset[i];
 	}
+	randByte = std::uniform_int_distribution<uint16_t>(0, 255u); // initialize RNG register
+}
 
-	void OP_00E0() //clear op
+	void Chip8::OP_00E0() //clear op
 	{
 		memset(Screen, 0, sizeof(Screen));
 	}
 
-	void OP_00EE()// RET  (return func)
+	void Chip8::OP_00EE()// RET  (return func)
 	{
 		SP--;
 		PC = stack[SP];
 	}
-	void OP_1nnn()// jp to addr
+	void Chip8::OP_1nnn()// jp to addr
 	{
 		uint16_t address = opcode & 0x0FFFu;
 		PC = address;
 	}
 
-	void OP_2nnn() //call addr
+	void Chip8::OP_2nnn() //call addr
 	{}
 
-	void OP_3xkk()
+	void Chip8::OP_3xkk()
 	{
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;// cuz x is in the second hexadecimal place so 
 		uint8_t byte = (opcode & 0x00FFu);
-		if (VX = byte) {
+		if (VX == byte) {
 			PC += 2;
 		}
 	}
 
-	void OP_4xkk()
+	void Chip8::OP_4xkk()
 	{
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;// cuz x is in the second hexadecimal place so 
 		uint8_t byte = (opcode & 0x00FFu);
@@ -95,24 +73,24 @@ class Chip8 {
 		}
 	}
 
-	void OP_5xy0()
+	void Chip8::OP_5xy0()
 	{
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;// cuz x is in the second hexadecimal place so 
 		uint8_t VY = (opcode & 0x00F0u) >> 4u;
-		if (VX = VY) {
+		if (VX == VY) {
 			PC += 2;
 		}
 	}
 
-	void OP_6xkk()
+	void Chip8::OP_6xkk()
 	{
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;// cuz x is in the second hexadecimal place so 
 		uint8_t byte = (opcode & 0x00FFu);
 
-		VX = byte;
+		registers [VX] = byte;
 	}
 
-	void OP_7xkk()
+	void Chip8::OP_7xkk()
 	{
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;// cuz x is in the second hexadecimal place so 
 		uint8_t byte = (opcode & 0x00FFu);
@@ -120,41 +98,41 @@ class Chip8 {
 		VX += byte;
 	}
 
-	void OP_8xy0()
+	void Chip8::OP_8xy0()
 	{
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;// cuz x is in the second hexadecimal place so 
 		uint8_t VY = (opcode & 0x00F0u) >> 4u;
 
-		VX = VY;
+		registers[VX] =registers[VY];
 	}
 
 	// OR Vx, Vy
-	void OP_8xy1()
+	void Chip8::OP_8xy1()
 	{
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;
 		uint8_t VY = (opcode & 0x00Fu) >> 4u;
-		VX = (VX | VY);
+		registers[VX] = (registers[VX] | registers[VY]);
 	}
 
 	// AND Vx, Vy
-	void OP_8xy2() {
+	void Chip8::OP_8xy2() {
 
 
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;
 		uint8_t VY = (opcode & 0x00Fu) >> 4u;
-		VX = (VX & VY);
+		registers[VX] = (registers[VX] & registers[VY]);
 	}
 
 	// XOR Vx, Vy
-	void OP_8xy3() {
+	void Chip8::OP_8xy3() {
 
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;
 		uint8_t VY = (opcode & 0x00Fu) >> 4u;
-		VX = (VX ^ VY); //^ stands for xor
+		registers[VX] = (registers[VX] ^ registers[VY]); //^ stands for xor
 	}
 
 	// ADD Vx, Vy
-	void OP_8xy4() {
+	void Chip8::OP_8xy4() {
 		//VF here is flag for carry 
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;
 		uint8_t VY = (opcode & 0x00Fu) >> 4u;
@@ -167,11 +145,11 @@ class Chip8 {
 		else 
 			registers[0xF] = 0;
 
-		VX = 0x0FFu & sum; 
+		registers[VX] = 0x0FFu & sum; 
 	}
 
 	// SUB Vx, Vy
-	void OP_8xy5() { //VF is gonna be a flag for not borrow
+	void Chip8::OP_8xy5() { //VF is gonna be a flag for not borrow
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;
 		uint8_t VY = (opcode & 0x00Fu) >> 4u;
 
@@ -184,7 +162,7 @@ class Chip8 {
 	}
 
 	// SHR Vx
-	void OP_8xy6() {	//shift right operation
+	void Chip8::OP_8xy6() {	//shift right operation
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;
 		
 		registers[0xF] = (registers[VX] & 0x1u);
@@ -196,7 +174,7 @@ class Chip8 {
 	}
 
 	// SUBN Vx, Vy
-	void OP_8xy7() {
+	void Chip8::OP_8xy7() {
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;
 		uint8_t VY = (opcode & 0x00Fu) >> 4u;
 
@@ -209,7 +187,7 @@ class Chip8 {
 	}
 
 	// SHL Vx
-	void OP_8xyE() {
+	void Chip8::OP_8xyE() {
 
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;
 		registers[0xF] = registers[VX] & 0x1u;
@@ -217,7 +195,7 @@ class Chip8 {
 	}
 
 	// SNE Vx, Vy
-	void OP_9xy0() { //skip next instruction
+	void Chip8::OP_9xy0() { //skip next instruction
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;
 		uint8_t VY = (opcode & 0x00Fu) >> 4u;
 
@@ -228,13 +206,13 @@ class Chip8 {
 	}
 
 	// LD I, address
-	void OP_Annn() {
+	void Chip8::OP_Annn() {
 		uint16_t Address = (opcode & 0x0FFFu);//memory is 12 bit so we will have to use 16 bit address register
 		AR = Address;
 	}
 
 	// JP V0, address
-	void OP_Bnnn() {
+	void Chip8::OP_Bnnn() {
 		uint16_t jmp_location = (opcode & 0x0FFFu);
 		
 		PC = registers[0] + jmp_location;
@@ -242,48 +220,137 @@ class Chip8 {
 	}
 
 	// RND Vx, byte
-	void OP_Cxkk() {
+	void Chip8::OP_Cxkk() {
 		uint8_t VX = (opcode & 0x0F00u)>>8u;
 		
-		registers[VX] = (randByte(randGen) & (opcode & 0x00FFu)); //right side variable is the kk value
+		registers[VX] = randByte(randGen) & (opcode & 0x00FFu); //right side variable is the kk value
 
 	}
 
 	// DRW Vx, Vy, height
-	void OP_Dxyn() {
+	void Chip8::OP_Dxyn() { //might be hardest function
+		uint8_t VX = (opcode & 0x0F00u) >> 8u;
+		uint8_t VY = (opcode & 0x00F0u) >> 4u;
 
 	}
 
 	// SKP Vx
-	void OP_Ex9E();
+	void Chip8::OP_Ex9E() {
+		uint8_t VX = (opcode & 0x0F00u) >> 8u;
+		uint8_t key = registers[VX];
+
+		if (keys[key]) {
+			PC += 2;
+		}
+	}
+	
 
 	// SKNP Vx
-	void OP_ExA1();
+	void Chip8::OP_ExA1() {
+		uint8_t VX = (opcode & 0x0F00u) >> 8u;
+		uint8_t key = registers[VX];
+
+		if (!keys[key]) {
+			PC += 2;
+		}
+	}
 
 	// LD Vx, DT
-	void OP_Fx07();
+	void Chip8::OP_Fx07() {
+		uint8_t VX = (opcode & 0x0F00u) >> 8u;
+		registers[VX] = delaytimer;
+		
+	}
 
 	// LD Vx, K
-	void OP_Fx0A();
+	void Chip8::OP_Fx0A() {
+		uint8_t VX = (opcode & 0x0F00u) >> 8u;
+		if (keys[0]) {
+			registers[VX] = 0;
+		}
+		else if (keys[1]) {
+			registers[VX] = 1;
+		}
+		else if (keys[2]) {
+			registers[VX] = 2;
+		}
+		else if (keys[3]) {
+			registers[VX] = 3;
+		}
+		else if (keys[4]) {
+			registers[VX] = 4;
+		}
+		else if (keys[5]) {
+			registers[VX] = 5;
+		}
+		else if (keys[6]) {
+			registers[VX] = 6;
+		}
+		else if(keys[7]) {
+			registers[VX] = 7;
+		}
+		else if (keys[8]) {
+			registers[VX] = 8;
+		}
+		else if (keys[9]) {
+			registers[VX] = 9;
+		}
+		else if (keys[10]) {
+			registers[VX] = 10;
+		}
+		else if (keys[11]) {
+			registers[VX] = 11;
+		}
+		else if (keys[12]) {
+			registers[VX] = 12;
+		}
+		else if (keys[13]) {
+			registers[VX] = 13;
+		}
+		else if (keys[14]) {
+			registers[VX] = 14;
+		}
+		else if (keys[15]) {
+			registers[VX] = 15;
+		}
+		else {
+			PC -= 2; //for waiting as to repeat instruction
+		}
+	}
 
 	// LD DT, Vx
-	void OP_Fx15();
+	void Chip8::OP_Fx15() {
+		uint8_t VX = (opcode & 0x0F00u)>>8u;
+		delaytimer = registers[VX];
+	}
 
 	// LD ST, Vx
-	void OP_Fx18();
+	void Chip8::OP_Fx18() {
+
+		uint8_t VX = (opcode & 0x0F00u) >> 8u;
+		soundtimer = registers[VX];
+
+	}
 
 	// ADD I, Vx
-	void OP_Fx1E();
+	void Chip8::OP_Fx1E() {
+		
+
+	}
 
 	// LD F, Vx
-	void OP_Fx29();
+	void Chip8::OP_Fx29() {
+
+	}
 
 	// LD B, Vx
-	void OP_Fx33();
+	void Chip8::OP_Fx33() {
+
+	}
 
 	// LD [I], Vx
-	void OP_Fx55();
+	void Chip8::OP_Fx55() {}
 
 	// LD Vx, [I]
-	void OP_Fx65();
-};
+	void Chip8::OP_Fx65() {}
+
