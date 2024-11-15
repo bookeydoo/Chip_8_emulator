@@ -34,6 +34,8 @@ public:
 
 	void cycle();
 
+	void loadROM(char const* file);
+
 	void decode();
 	
 	void OP_00E0(); //clear op
