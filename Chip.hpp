@@ -2,7 +2,7 @@
 #ifndef CHIP8_HPP  // Check if CHIP8_HPP is not defined
 #define CHIP8_HPP  // Define CHIP8_HPP
 
-
+#include<iostream>
 #include<stdint.h>
 #include<cstdint>
 #include<random>
@@ -33,11 +33,7 @@ public:
 	Chip8();
 
 	void cycle();
-
-	void loadROM(char const* file);
-
 	void decode();
-	
 	void OP_00E0(); //clear op
 
 	void OP_00EE();// RET  (return func)

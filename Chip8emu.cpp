@@ -1,5 +1,4 @@
 //TODO : organize files and compile them together 
-#include<fstream>
 #include "chip.hpp"
 #include<stdint.h>
 #include<cstdint>
@@ -37,31 +36,6 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 	randByte = std::uniform_int_distribution<uint16_t>(0, 255u); // initialize RNG register
 }
 
-
-	void Chip8::loadROM(const char* filename){
-		// Open the file as a stream of binary and move the file pointer to the end
-	std::ifstream file(filename, std::ios::binary | std::ios::ate);
-
-	if (file.is_open())
-	{
-		// Get size of file and allocate a buffer to hold the contents
-		std::streampos size = file.tellg();
-		char* buffer = new char[size];
-
-		// Go back to the beginning of the file and fill the buffer
-		file.seekg(0, std::ios::beg);
-		file.read(buffer, size);
-		file.close();
-
-		// Load the ROM contents into the Chip8's memory, starting at 0x200
-		for (long i = 0; i < size; ++i)
-		{
-			Mem[start_address + i] = buffer[i];
-		}
-
-		delete[] buffer;
-	}
-	}
 	void Chip8::OP_00E0() //clear op
 	{
 		memset(Screen, 0, sizeof(Screen));
@@ -411,8 +385,9 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 
 	void Chip8::cycle(){
 		//fetch
-		opcode = (Mem[PC]<<8u) | (Mem[PC+1]); //we combine the two words into one opcode 
-
+		opcode = (Mem[PC]<<8u) ;
+		
+		decode();
 		PC += 2;
 
 		// Decrement the delay timer if it's been set
@@ -426,9 +401,114 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 		{
 			--soundtimer;
 		}
-		decode();
-	}
-	void Chip8::decode(){
-		//todo ان شاء الله
 	}
 
+	void Chip8::decode(){
+		uint8_t first_byte = opcode & 0xF000;
+		if (first_byte == 1) {
+			OP_1nnn();
+		}
+		else if (first_byte == 2) {
+			OP_2nnn();
+		}
+		else if (first_byte == 3) {
+			OP_3xkk();
+		}
+		else if (first_byte == 4) {
+			OP_4xkk();
+		}
+		else if (first_byte == 5) {
+			OP_5xy0();
+		}
+		else if (first_byte == 6) {
+			OP_6xkk();
+		}
+		else if (first_byte == 7) {
+			OP_7xkk();
+		}
+		else if (first_byte == 8) {
+			uint8_t lastbyte = (opcode & 0x000F);
+			if (lastbyte == 0) {
+				OP_8xy0();
+			}
+			else if(lastbyte == 1){
+				OP_8xy1();
+			}
+			else if (lastbyte == 2) {
+				OP_8xy2();
+			}
+			else if (lastbyte == 3) {
+				OP_8xy3();
+			}
+			else if (lastbyte == 4) {
+				OP_8xy4();
+			}
+			else if (lastbyte == 5) {
+				OP_8xy5();
+			}
+			else if (lastbyte == 6) {
+				OP_8xy6();
+			}
+			else if (lastbyte == 7) {
+				OP_8xy7();
+			}
+			else {
+				OP_8xyE();
+			}
+
+		}
+		else if (first_byte == 0) {
+			uint8_t lastbyte = (opcode & 0x000F);
+			if (lastbyte == 0) {
+				OP_00E0();
+			}
+			else {
+				OP_00EE();
+			}
+		}
+		else if (first_byte == 0xE) {
+			uint8_t lastbyte = (opcode & 0x000F);
+			if (lastbyte == 1) {
+				OP_ExA1();
+			}
+			else {
+				OP_Ex9E();
+			}
+		}
+		else if (first_byte == 0xF) {
+			uint8_t thirdbyte=(opcode & 0x00F0);
+			uint8_t lastbyte =(opcode & 0x000F);
+			if (lastbyte == 7) {
+				OP_Fx07();
+			}
+			else if(lastbyte == 0xA){
+				OP_Fx0A();
+			}
+			else if (thirdbyte == 1) {
+				if (lastbyte == 5) {
+					OP_Fx15();
+				}
+				else if (lastbyte == 8) {
+					OP_Fx18();
+				}
+				else {
+					OP_Fx1E();
+				}
+			}
+			else if (lastbyte == 9) {
+				OP_Fx29();
+			}
+			else if (lastbyte == 3) {
+				OP_Fx33();
+			}
+			else if (thirdbyte == 5) {
+				OP_Fx55();
+			}
+			else if (thirdbyte == 6) {
+				OP_Fx65();
+			}
+			else {
+				std::cerr << "unknown opcode"<<std::hex<<opcode<<"\n";
+				return;
+			}
+	}
