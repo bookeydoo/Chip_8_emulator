@@ -511,4 +511,5 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 				std::cerr << "unknown opcode"<<std::hex<<opcode<<"\n";
 				return;
 			}
+		}
 	}
