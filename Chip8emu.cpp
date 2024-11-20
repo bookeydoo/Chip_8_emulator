@@ -6,6 +6,8 @@
 #include<chrono>
 #include <cstring>
 
+const uint8_t video_width	=64;
+const uint8_t video_height	=32;
 const uint8_t FONT_SET_SIZE = 80;
 const uint8_t FONT_SET_STARTADDRESS = 0x50;
 const uint8_t start_address = 0x200;
@@ -236,6 +238,35 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 	void Chip8::OP_Dxyn() { //might be hardest function
 		uint8_t VX = (opcode & 0x0F00u) >> 8u;
 		uint8_t VY = (opcode & 0x00F0u) >> 4u;
+		uint8_t height = opcode & 0x000Fu;
+	
+		uint8_t Pos_X = registers[VX] % video_width;
+		uint8_t Pos_Y = registers[VY] % video_height;
+
+		registers[0xF] = 0;
+
+
+		for (int row = 0;row < height;row++) {
+			uint8_t sprite_byte = Mem[AR + row];
+			for (int col = 0;col < 8;col++) {
+
+				uint8_t spritePixel = sprite_byte & (0x80u >> col);
+				uint32_t* screenPixel = &Screen[(Pos_Y + row) * video_width + (Pos_X + col)];
+
+				// Sprite pixel is on
+				if (spritePixel)
+				{
+					// Screen pixel also on - collision
+					if (*screenPixel == 0xFFFFFFFF)
+					{
+						registers[0xF] = 1;
+					}
+
+					// Effectively XOR with the sprite pixel
+					*screenPixel ^= 0xFFFFFFFF;
+				}
+			}
+		}
 
 	}
 
@@ -403,7 +434,7 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 		}
 	}
 
-	void Chip8::decode(){
+	void Chip8::decode() {
 		uint8_t first_byte = opcode & 0xF000;
 		if (first_byte == 1) {
 			OP_1nnn();
@@ -431,7 +462,7 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 			if (lastbyte == 0) {
 				OP_8xy0();
 			}
-			else if(lastbyte == 1){
+			else if (lastbyte == 1) {
 				OP_8xy1();
 			}
 			else if (lastbyte == 2) {
@@ -476,12 +507,12 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 			}
 		}
 		else if (first_byte == 0xF) {
-			uint8_t thirdbyte=(opcode & 0x00F0);
-			uint8_t lastbyte =(opcode & 0x000F);
+			uint8_t thirdbyte = (opcode & 0x00F0);
+			uint8_t lastbyte = (opcode & 0x000F);
 			if (lastbyte == 7) {
 				OP_Fx07();
 			}
-			else if(lastbyte == 0xA){
+			else if (lastbyte == 0xA) {
 				OP_Fx0A();
 			}
 			else if (thirdbyte == 1) {
@@ -508,7 +539,7 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 				OP_Fx65();
 			}
 			else {
-				std::cerr << "unknown opcode"<<std::hex<<opcode<<"\n";
+				std::cerr << "unknown opcode" << std::hex << opcode << "\n";
 				return;
 			}
 		}
