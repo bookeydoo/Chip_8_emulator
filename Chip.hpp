@@ -8,13 +8,15 @@
 #include<random>
 #include<chrono>
 #include <cstring>
-
+#include<fstream>
 
 
 
 class Chip8 {
 public:
 	//implementing registers used
+
+	uint8_t keys[16];
 	uint8_t registers[16];
 	uint16_t stack[16];
 	uint16_t Mem[4096];
@@ -24,7 +26,7 @@ public:
 	uint8_t keys[16]; //we use hexadecimal keys from 0 to F 
 	uint8_t delaytimer;
 	uint8_t soundtimer;
-	int32_t Screen[64 * 32]; //we can change it depending on preferences
+	uint32_t Screen[64 * 32]; //we can change it depending on preferences
 	uint16_t opcode;
 
 	std::default_random_engine randGen;
@@ -34,6 +36,9 @@ public:
 
 	void cycle();
 	void decode();
+
+	void loadRom(char const* filename);
+
 	void OP_00E0(); //clear op
 
 	void OP_00EE();// RET  (return func)

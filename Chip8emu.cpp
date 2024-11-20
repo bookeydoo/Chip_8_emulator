@@ -37,7 +37,36 @@ Chip8::Chip8() : randGen(std::chrono::system_clock::now().time_since_epoch().cou
 	}
 	randByte = std::uniform_int_distribution<uint16_t>(0, 255u); // initialize RNG register
 }
+	
+void Chip8::loadRom(char const* filename)
+{
+	// Open the file as a stream of binary and move the file pointer to the end
+	std::ifstream file(filename, std::ios::binary | std::ios::ate);
 
+	if (file.is_open())
+	{
+		// Get size of file and allocate a buffer to hold the contents
+		std::streampos size = file.tellg();
+		char* buffer = new char[size];
+
+		// Go back to the beginning of the file and fill the buffer
+		file.seekg(0, std::ios::beg);
+		file.read(buffer, size);
+		file.close();
+
+		// Load the ROM contents into the Chip8's memory, starting at 0x200
+		for (long i = 0; i < size; ++i)
+		{
+			Mem[start_address + i] = buffer[i];
+		}
+
+		// Free the buffer
+		delete[] buffer;
+	}
+	else {
+		std::cout << "sth went wrong while loading the rom";
+	}
+}
 	void Chip8::OP_00E0() //clear op
 	{
 		memset(Screen, 0, sizeof(Screen));

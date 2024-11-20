@@ -2,8 +2,15 @@
 #include<iostream>
 #include<raylib.h>
 #include"chip.hpp"
+#include<fstream>
 
 //TODO later maybe for better organiziation 
+
+
+
+
+// this is for testing
+const char*  testrom = "test_opcode.8o";
 int main(int argc, char** argv)
 {
     Chip8 cpu;
@@ -13,10 +20,17 @@ int main(int argc, char** argv)
     int window_height = 0;
 
 
-    if (argc < 3) {
+   /* if (argc < 2) {
         std::cerr << "sth wrong occured please input the rom and try again";
-        
     }
+*/
+    
+    //Here we load the rom
+    std::cout << "loading ROM \n";
+    cpu.loadRom(testrom);
+
+    
+    
     std::cout << "please select the size u want from the following:\n\t 1.800x500 \t 2.1200x800  ";
     uint8_t choice;
     std::cin >> choice;
@@ -28,7 +42,6 @@ int main(int argc, char** argv)
         window_length = 1200;
         window_height = 800;
     }
-    
     InitWindow(window_length,window_height,"Chip8 emulator");
  
    
@@ -52,7 +65,7 @@ int main(int argc, char** argv)
     float alpha = 1.0; //for fading(idk what this means )
 
     SetTargetFPS(60);
-    cpu.loadROM(argv[3]);
+    
     while (!WindowShouldClose()) {
         //the logo stuff starts here  for checks first
           // Update
@@ -102,13 +115,11 @@ int main(int argc, char** argv)
                 }
             }
         }
-        else if (state == 4)            // State 4: Reset and Replay
-        {
-            if (IsKeyPressed(KEY_ENTER)) //starting the cpu
-            { 
-                ClearBackground(BLACK);
-                Cpu.cycle();    
-            }
+        else if (state == 4){    //idk what to put here yet
+       
+            
+            
+
         }
 
 
@@ -155,7 +166,65 @@ int main(int argc, char** argv)
 
             DrawText(TextSubtext("raylib", 0, lettersCount), GetScreenWidth() / 2 - 44, GetScreenHeight() / 2 + 48, 50, Fade(BLACK, alpha));
         }
+        else if (state == 4) {
+            //getting user input 
+            //keyboard layout is gonna be :
+            //1234  
+            //qwer
+            //asdf
+            //zxcv
 
+            if (IsKeyPressed(KEY_KP_1)) {
+               cpu.keys[0] = 1;
+            }
+            if (IsKeyPressed(KEY_KP_2)) {
+                cpu.keys[1] = 1;
+            }
+            if (IsKeyPressed(KEY_KP_3)) {
+                cpu.keys[2] = 1;
+            }
+            if (IsKeyPressed(KEY_KP_4)) {
+                cpu.keys[3] = 1;
+            }
+            if (IsKeyPressed(KEY_Q)) {
+                cpu.keys[4] = 1;
+            }
+            if (IsKeyPressed(KEY_W)) {
+                cpu.keys[5] = 1;
+            }
+            if (IsKeyPressed(KEY_E)) {
+                cpu.keys[6] = 1;
+            }
+            if (IsKeyPressed(KEY_R)) {
+                cpu.keys[7] = 1;
+            }
+            if (IsKeyPressed(KEY_A)) {
+                cpu.keys[8] = 1;
+            }
+            if (IsKeyPressed(KEY_S)) {
+                cpu.keys[9] = 1;
+            }
+            if (IsKeyPressed(KEY_D)) {
+                cpu.keys[10] = 1;
+            }
+            if (IsKeyPressed(KEY_F)) {
+                cpu.keys[11] = 1;
+            }
+            if (IsKeyPressed(KEY_Z)) {
+                cpu.keys[12] = 1;
+            }
+            if (IsKeyPressed(KEY_X)) {
+                cpu.keys[13] = 1;
+            }
+            if (IsKeyPressed(KEY_C)) {
+                cpu.keys[14] = 1;
+            }
+            if (IsKeyPressed(KEY_V)) {
+                cpu.keys[15] = 1;
+            }
+
+
+        }
         EndDrawing();
     }
 
